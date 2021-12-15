@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, String> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAmountAndCurrency(BigDecimal amount, Currency currency);
     List<Transaction> findByCurrency(Currency currency);
     List<Transaction> findByCurrencyAndDateTime(Currency currency, LocalDateTime dateTime);

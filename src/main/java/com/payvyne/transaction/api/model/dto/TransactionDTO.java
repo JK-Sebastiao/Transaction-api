@@ -1,4 +1,4 @@
-package com.payvyne.transaction.api.dto;
+package com.payvyne.transaction.api.model.dto;
 
 import com.payvyne.transaction.api.model.enums.Currency;
 import lombok.Builder;
@@ -11,4 +11,5 @@ import java.math.BigDecimal;
 public class TransactionDTO {
     private BigDecimal amount;
     private Currency currency;
+    private String description;
 }

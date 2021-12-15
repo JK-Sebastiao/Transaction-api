@@ -1,59 +1,51 @@
 package com.payvyne.transaction.api.service;
 
-import com.payvyne.transaction.api.dto.TransactionDTO;
+import com.payvyne.transaction.api.model.dto.TransactionDTO;
 import com.payvyne.transaction.api.model.Transaction;
 import com.payvyne.transaction.api.model.enums.Currency;
 import com.payvyne.transaction.api.model.enums.TransactionStatus;
 import com.payvyne.transaction.api.repository.TransactionRepository;
-import org.springframework.beans.BeanUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class TransactionService {
 
     private TransactionRepository transactionRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
-
-    public List<Transaction> getAllTransactions(){
-        return transactionRepository.findAll();
-    }
-
-    public Optional<Transaction> getById(String id){
+    public Optional<Transaction> getById(long id){
         return this.transactionRepository.findById(id);
     }
-     public List<Transaction> getTransactionsByAmountAndCurrency(BigDecimal amount, Currency currency){
-        return transactionRepository.findByAmountAndCurrency(amount, currency);
-     }
 
-    public Transaction save(TransactionDTO transactionDTO) {
+    @Transactional
+    public Transaction create(TransactionDTO transactionDTO) {
         Transaction transaction = Transaction.builder()
                 .amount(transactionDTO.getAmount())
                 .currency(transactionDTO.getCurrency())
                 .status(TransactionStatus.NEW)
                 .dateTime(LocalDateTime.now())
+                .description(transactionDTO.getDescription())
                 .build();
         return transactionRepository.save(transaction);
     }
 
-    public Transaction update(String id, Transaction updatedTransaction){
-        Transaction transaction = transactionRepository.getById(id);
-        BeanUtils.copyProperties(updatedTransaction,transaction);
-        return transactionRepository.save(transaction);
+    @Transactional
+    public Transaction update(long id, Transaction updatedTransaction){
+        updatedTransaction.setId(id);
+        return transactionRepository.save(updatedTransaction);
     }
 
-    public void delete(String id){
+    public void delete(long id){
         transactionRepository.deleteById(id);
     }
 
-    public List<Transaction> getTransactionsAllOrByNotNull(Optional<Currency> currency, Optional<TransactionStatus> status, Optional<String> dateTime ){
+    public List<Transaction> getTransactionsAllOrByNotNull(Optional<Currency> currency, Optional<TransactionStatus> status, Optional<String> dateTime){
         return getTransactionsAllOrByNotNull(currency.orElse(null), status.orElse(null),
                 dateTime.map(date -> LocalDateTime.parse(date)).orElse(null));
     }
